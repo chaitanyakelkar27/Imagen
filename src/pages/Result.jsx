@@ -5,6 +5,7 @@ const Result = () => {
     const [image, setImage] = React.useState(assets.sample_img_1);
     const [isImageLoaded, setIsImageLoaded] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
+    
     return (
         <form className='flex flex-col min-h-[90vh] justify-center items-center'>
             <div>
