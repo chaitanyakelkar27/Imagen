@@ -1,8 +1,21 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { motion } from "motion/react"
+import { useNavigate } from 'react-router-dom'
+import { AppContext } from '../context/AppContext.jsx'
 
 const Header = () => {
+    const navigate = useNavigate();
+    const { user, setShowLogin } = useContext(AppContext);
+
+    const onClickHandler = () => {
+        if (user) {
+            navigate('/result');
+        } else {
+            setShowLogin(true);
+        }
+    };
+
     return (
         <motion.div className="flex flex-col items-center justify-center"
             initial={{ opacity: 0, y: -50 }}
@@ -27,7 +40,7 @@ const Header = () => {
                 Turn text to <span className='text-blue-600'>image</span>, in seconds.
             </motion.h1>
 
-            <motion.button
+            <motion.button onClick={onClickHandler}
                 className='sm:text-lg text-white bg-black w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full'
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
