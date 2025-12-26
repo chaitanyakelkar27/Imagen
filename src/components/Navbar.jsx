@@ -7,9 +7,9 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { user, setShowLogin } = useContext(AppContext);
     return (
-        <div className='flex items-center justify-between py-6'>
-            <Link to="/">
-                <img src={assets.logo} alt="Logo" className="w-48 sm:w-56 lg:w-64" />
+        <div className='flex items-center justify-between py-4'>
+            <Link to="/" className='flex items-center'>
+                <img src={assets.logo} alt="Logo" className="w-24 sm:w-28 lg:w-32" />
             </Link>
             <div>
                 {
@@ -31,7 +31,7 @@ const Navbar = () => {
                         </div>
                         :
                         <div className='flex items-center gap-2 sm:gap-5'>
-                            <p onClick={() => navigate('/buy-credit')} className='cursor-pointer'>Pricing</p>
+                            <p onClick={() => navigate('/buy-credit')} className='cursor-pointer text-base'>Pricing</p>
                             <button onClick={() => setShowLogin(true)} className='bg-zinc-800 text-white px-7 py-2 sm:px-10 text-sm rounded-full'>Login</button>
                         </div>
                 }
