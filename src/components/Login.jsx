@@ -26,7 +26,7 @@ const Login = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500'>
+            <motion.form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500'>
                 <h1 className='text-center text-2xl text-neutral-700 font-medium'>{state}</h1>
                 <p className='text-sm text-center mb-5'>Welcome back! Please sign in to continue</p>
 

@@ -7,9 +7,9 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { user, setShowLogin } = useContext(AppContext);
     return (
-        <div className='flex items-center justify-between py-4 px-5 sm:px-10'>
+        <div className='flex items-center justify-between py-5 px-5 sm:px-10 sm:py-6'>
             <Link to="/">
-                <img src={assets.logo} alt="Logo" className="w-28 sm:w-32" />
+                <img src={assets.logo} alt="Logo" className="w-32 sm:w-40" />
             </Link>
             <div className='flex items-center'>
                 {
@@ -31,8 +31,8 @@ const Navbar = () => {
                         </div>
                         :
                         <div className='flex items-center gap-6'>
-                            <p onClick={() => navigate('/buy-credit')} className='cursor-pointer font-medium'>Pricing</p>
-                            <button onClick={() => setShowLogin(true)} className='bg-zinc-800 text-white px-10 py-2.5 text-sm rounded-full hover:bg-zinc-700 transition-all'>Login</button>
+                            <p onClick={() => navigate('/buy-credit')} className='cursor-pointer font-medium text-base'>Pricing</p>
+                            <button onClick={() => setShowLogin(true)} className='bg-zinc-800 text-white px-10 py-2.5 sm:px-12 sm:py-3 text-sm sm:text-base rounded-full hover:bg-zinc-700 transition-all'>Login</button>
                         </div>
                 }
             </div>
