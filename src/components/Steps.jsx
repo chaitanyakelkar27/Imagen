@@ -1,10 +1,6 @@
 import React from 'react'
 import { stepsData } from '../assets/assets'
-<<<<<<< HEAD
 import { motion } from "motion/react"
-=======
-import motion from "motion/react"
->>>>>>> d9053ae1aa7e3ac5476cd56458f1e9b152fdf751
 
 const Steps = () => {
     return (
