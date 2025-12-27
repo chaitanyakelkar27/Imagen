@@ -1,5 +1,5 @@
 import userModel from "../models/userModel.js";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const registerUser = async (req, res) => {
@@ -25,5 +25,19 @@ const registerUser = async (req, res) => {
             message: 'Error in registering user',
             error
         });
+    }
+};
+
+const loginUser=async(req,res)=>{
+    try{
+        const {email,password}=req.body;
+        const user=await userModel.findOne({email})
+        if(!user){
+            return res.json({success:false,message:'User not found'})
+        }
+        const isMatch=await bcrypt.compare(password,user.password);
+        
+    }catch(error){
+
     }
 };
