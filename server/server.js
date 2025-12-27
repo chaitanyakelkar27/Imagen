@@ -15,7 +15,7 @@ app.use(express.json());
 await connectDB();
 
 app.get('/', (req, res) => {
-    res.send('Server is running');
+    res.send('Server is running properly');
 });
 
 app.listen(PORT, () => {
