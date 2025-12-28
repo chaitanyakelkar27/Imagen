@@ -52,4 +52,19 @@ const loginUser = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser };
+const userCredits = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await userModel.findById(userId);
+        res.json({ success: true, creditBalance: user.creditBalance, user: { name: user.name } });
+
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: 'Error in fetching user credits',
+            error
+        });
+    }
+};
+
+export { registerUser, loginUser, userCredits };
