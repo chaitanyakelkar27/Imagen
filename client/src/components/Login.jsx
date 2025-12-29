@@ -6,6 +6,9 @@ import { motion } from 'framer-motion'
 const Login = () => {
     const [state, setState] = useState('Login');
     const { setShowLogin } = useContext(AppContext);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -32,19 +35,19 @@ const Login = () => {
 
                 {state !== 'Login' && (
                     <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-5'>
-                        <img src={assets.profile_icon} alt="" width={20} />
-                        <input className='outline-none text-sm' type="text" placeholder='Full Name' required />
+                        <img src={assets.user_icon} alt="" width={20} />
+                        <input onChange={(e) => setName(e.target.value)} value={name} className='outline-none text-sm' type="text" placeholder='Full Name' required />
                     </div>
                 )}
 
                 <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-4'>
                     <img src={assets.email_icon} alt="" />
-                    <input className='outline-none text-sm' type="email" placeholder='Email id' required />
+                    <input onChange={(e) => setEmail(e.target.value)} value={email} className='outline-none text-sm' type="email" placeholder='Email id' required />
                 </div>
 
                 <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-4'>
                     <img src={assets.lock_icon} alt="" />
-                    <input className='outline-none text-sm' type="password" placeholder='Password' required />
+                    <input onChange={(e) => setPassword(e.target.value)} value={password} className='outline-none text-sm' type="password" placeholder='Password' required />
                 </div>
 
                 <p className='text-sm text-blue-600 my-4 cursor-pointer'>Forgot password?</p>
