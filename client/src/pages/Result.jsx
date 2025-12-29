@@ -1,12 +1,15 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { assets } from '../assets/assets'
 import { motion } from 'framer-motion'
+import { AppContext } from '../context/AppContext.jsx'
 
 const Result = () => {
     const [image, setImage] = useState(assets.sample_img_1);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [input, setInput] = useState('');
+
+    const { generateImage } = useContext(AppContext);
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
@@ -20,10 +23,13 @@ const Result = () => {
                     loadingBar.style.width = '100%';
                 }, 100);
             }
-            setTimeout(() => {
+
+            const generatedImage = await generateImage(input);
+            if (generatedImage) {
+                setImage(generatedImage);
                 setIsImageLoaded(true);
-                setIsLoading(false);
-            }, 10000);
+            }
+            setIsLoading(false);
         }
     };
 
