@@ -2,10 +2,14 @@ import React, { useState, useContext, useEffect } from 'react'
 import { assets } from '../assets/assets'
 import { AppContext } from '../context/AppContext'
 import { motion } from 'framer-motion'
+import axios from 'axios'
+import { set } from 'mongoose'
+import { toast } from 'react-toastify'
 
 const Login = () => {
     const [state, setState] = useState('Login');
-    const { setShowLogin } = useContext(AppContext);
+    const { setShowLogin, backendURL, setToken, setUser } = useContext(AppContext);
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,6 +23,39 @@ const Login = () => {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
+        try {
+            if (state === 'Login') {
+                const { data } = await axios.post(`${backendURL}/api/user/login`, {
+                    email,
+                    password
+                });
+                if (data.success) {
+                    setToken(data.token);
+                    setShowLogin(false);
+                    setUser(data.user);
+                    toast.success('Login Successful');
+                } else {
+                    toast.error(data.message);
+                }
+            } else {
+                const { data } = await axios.post(`${backendURL}/api/user/register`, {
+                    name,
+                    email,
+                    password
+                });
+                if (data.success) {
+                    setToken(data.token);
+                    setShowLogin(false);
+                    setUser(data.user);
+                    toast.success('Account Created Successfully');
+                } else {
+                    toast.error(data.message);
+                }
+            }
+
+        } catch (error) {
+            toast.error('Something went wrong. Please try again.');
+        }
     };
 
     return (
