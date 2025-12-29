@@ -3,7 +3,6 @@ import { assets } from '../assets/assets'
 import { AppContext } from '../context/AppContext'
 import { motion } from 'framer-motion'
 import axios from 'axios'
-import { set } from 'mongoose'
 import { toast } from 'react-toastify'
 
 const Login = () => {
