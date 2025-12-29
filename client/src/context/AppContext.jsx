@@ -13,13 +13,11 @@ export const AppContextProvider = (props) => {
 
     const loadCreditsData = async () => {
         try {
-            const { data } = await axios.get(`${backendURL}/api/credits/get-credits`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            const { data } = await axios.post(`${backendURL}/api/user/credits`, {}, {
+                headers: { token }
             });
             if (data.success) {
-                setCredits(data.credits);
+                setCredits(data.creditBalance);
                 setUser(data.user);
             } else {
                 toast.error('Failed to load credits data.');
