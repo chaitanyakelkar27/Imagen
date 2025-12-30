@@ -8,6 +8,11 @@ const registerUser = async (req, res) => {
         if (!name || !email || !password) {
             return res.json({ success: false, message: 'Please provide all required fields' });
         }
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.json({ success: false, message: 'User already exists' });
+        }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const userData = {
@@ -35,6 +40,11 @@ const loginUser = async (req, res) => {
         if (!user) {
             return res.json({ success: false, message: 'User not found' })
         }
+
+        if (user.authProvider === 'google') {
+            return res.json({ success: false, message: 'Please login using Google Sign-In' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
@@ -67,4 +77,13 @@ const userCredits = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, userCredits };
+const googleCallback = async (req, res) => {
+    try {
+        const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        res.redirect(`${process.env.CLIENT_URL}/google-auth?token=${token}`);
+    } catch (error) {
+        res.redirect(`${process.env.CLIENT_URL}/login?error=Google authentication failed`);
+    }
+};
+
+export { registerUser, loginUser, userCredits, googleCallback };
