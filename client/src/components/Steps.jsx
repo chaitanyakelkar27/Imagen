@@ -5,7 +5,7 @@ import { motion } from "motion/react"
 const Steps = () => {
     return (
         <motion.div initial={{ opacity: 0, y: 50 }} transition={{ duration: 1 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className='my-32 md:my-24 lg:my-32 flex flex-col items-center justify-center gap-10 md:gap-16'>
+            className='my-32 md:my-24 lg:my-32 flex flex-col items-center justify-center gap-10 md:gap-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-20 rounded-3xl'>
             <div className='text-center'>
                 <h1 className='text-3xl sm:text-4xl font-semibold mb-2'>Simple Process</h1>
                 <p className='text-lg text-gray-600 mb-8'>Create Amazing Visuals in Three Easy Steps</p>

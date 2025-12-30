@@ -41,7 +41,7 @@ const Header = () => {
             </motion.h1>
 
             <motion.button onClick={onClickHandler}
-                className='sm:text-lg text-white bg-black w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full'
+                className='sm:text-lg text-white bg-gradient-to-r from-purple-600 to-pink-600 w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full shadow-lg'
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}

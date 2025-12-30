@@ -39,18 +39,18 @@ export const assets = {
 
 export const stepsData = [
   {
-    title: 'Describe Your Vision',
-    description: 'Type a phrase, sentence, or paragraph that describes the image you want to create.',
+    title: 'Express Your Concept',
+    description: 'Share your creative idea through text - from simple phrases to detailed descriptions of your desired visual.',
     icon: step_icon_1,
   },
   {
-    title: 'Watch the Magic',
-    description: 'Our AI-powered engine will transform your text into a high-quality, unique image in seconds.',
+    title: 'AI Brings It to Life',
+    description: 'Our intelligent system instantly interprets your words and crafts a unique, professional-grade image.',
     icon: step_icon_2,
   },
   {
-    title: 'Download & Share',
-    description: 'Instantly download your creation or share it with the world directly from our platform.',
+    title: 'Save & Showcase',
+    description: 'Export your masterpiece in high resolution or share it instantly across your favorite platforms.',
     icon: step_icon_3,
   },
 ];
@@ -58,24 +58,24 @@ export const stepsData = [
 export const testimonialsData = [
   {
     image: profile_img_1,
-    name: 'Donald Jackman',
-    role: 'Graphic Designer',
+    name: 'Michael Chen',
+    role: 'Digital Artist',
     stars: 5,
-    text: `I've been using bg.removal for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.`
+    text: `This platform has revolutionized my creative workflow. The AI understands my vision perfectly and delivers stunning results every single time.`
   },
   {
     image: profile_img_2,
-    name: 'Richard Nelson',
-    role: 'Content Creator',
+    name: 'Sarah Mitchell',
+    role: 'Marketing Specialist',
     stars: 5,
-    text: `I've been using bg.removal for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.`
+    text: `Creating professional visuals for campaigns has never been easier. The quality is exceptional and it saves me hours of design work.`
   },
   {
     image: profile_img_1,
-    name: 'Donald Jackman',
-    role: ' Graphic Designer',
+    name: 'James Rodriguez',
+    role: 'Creative Director',
     stars: 5,
-    text: `I've been using bg.removal for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.`
+    text: `An absolute game-changer for our creative team. We can prototype visual concepts instantly and iterate faster than ever before.`
   },
 ]
 
