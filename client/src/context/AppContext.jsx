@@ -7,6 +7,7 @@ export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
 
+    const backendURL = import.meta.env.VITE_BACKEND_URL;
     const [user, setUser] = useState(null);
     const [showLogin, setShowLogin] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -70,8 +71,6 @@ export const AppContextProvider = (props) => {
             setUser(null);
         }
     }, [token]);
-
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
 
     const value = {
         user, setUser,

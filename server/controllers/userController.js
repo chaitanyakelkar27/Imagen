@@ -80,9 +80,9 @@ const userCredits = async (req, res) => {
 const googleCallback = async (req, res) => {
     try {
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.redirect(`${process.env.CLIENT_URL}/google-auth?token=${token}`);
+        res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
     } catch (error) {
-        res.redirect(`${process.env.CLIENT_URL}/login?error=Google authentication failed`);
+        res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=Google authentication failed`);
     }
 };
 
