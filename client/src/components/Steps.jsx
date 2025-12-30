@@ -16,7 +16,7 @@ const Steps = () => {
                         <img width={40} src={item.icon} alt="" />
                         <div>
                             <h2 className='text-xl font-medium'>{item.title}</h2>
-                            <p className='text-gray-500'>{item.description}</p>
+                          <p className='text-gray-500'>{item.description}</p>
                         </div>
                     </div>
                 ))}
