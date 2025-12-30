@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
-import {motion} from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext.jsx'
 
@@ -28,7 +28,7 @@ const Header = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}>
-                <p>Best text to image Generator</p>
+                <p>Advanced AI Image Creation Tool</p>
                 <img src={assets.star_icon} alt="" />
             </motion.div>
 
@@ -37,7 +37,7 @@ const Header = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}>
-                Turn text to <span className='text-blue-600'>image</span>, in seconds.
+                Transform your <span className='text-purple-600'>ideas</span> into stunning visuals.
             </motion.h1>
 
             <motion.button onClick={onClickHandler}
@@ -47,7 +47,7 @@ const Header = () => {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}>
-                Generate Images
+                Create Your Image
                 <img className="h-6" src={assets.star_group} alt="" />
             </motion.button>
 

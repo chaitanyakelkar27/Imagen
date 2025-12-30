@@ -7,8 +7,8 @@ const Steps = () => {
         <motion.div initial={{ opacity: 0, y: 50 }} transition={{ duration: 1 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className='my-32 md:my-24 lg:my-32 flex flex-col items-center justify-center gap-10 md:gap-16'>
             <div className='text-center'>
-                <h1 className='text-3xl sm:text-4xl font-semibold mb-2'>How it works</h1>
-                <p className='text-lg text-gray-600 mb-8'>Transform Words Into Stunning Images</p>
+                <h1 className='text-3xl sm:text-4xl font-semibold mb-2'>Simple Process</h1>
+                <p className='text-lg text-gray-600 mb-8'>Create Amazing Visuals in Three Easy Steps</p>
             </div>
             <div className="space-y-4 w-full max-w-4xl text-sm">
                 {stepsData.map((item, index) => (
