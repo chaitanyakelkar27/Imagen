@@ -37,11 +37,11 @@ const Header = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}>
-                Transform your <span className='text-purple-600'>ideas</span> into stunning visuals.
+                Transform your <span className='text-blue-600'>ideas</span> into stunning visuals.
             </motion.h1>
 
             <motion.button onClick={onClickHandler}
-                className='sm:text-lg text-white bg-gradient-to-r from-purple-600 to-pink-600 w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full shadow-lg'
+                className='sm:text-lg text-white bg-black w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full'
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}

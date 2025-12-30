@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 
 const Testimonial = () => {
     return (
-        <motion.div className='flex flex-col items-center justify-center my-20 py-12 bg-gradient-to-bl from-purple-50 via-pink-50 to-rose-50 rounded-3xl'
+        <motion.div className='flex flex-col items-center justify-center my-20 py-12'
             initial={{ opacity: 0, y: 50 }}
             transition={{ duration: 1 }}
             whileInView={{ opacity: 1, y: 0 }}
