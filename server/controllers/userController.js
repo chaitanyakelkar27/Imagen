@@ -25,10 +25,10 @@ const registerUser = async (req, res) => {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({ success: true, token, user: { name: user.name } });
     } catch (error) {
-        res.status(500).send({
+        console.error('Registration error:', error);
+        res.status(500).json({
             success: false,
-            message: 'Error in registering user',
-            error
+            message: 'Error in registering user'
         });
     }
 };
@@ -45,6 +45,10 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: 'Please login using Google Sign-In' });
         }
 
+        if (!user.password) {
+            return res.json({ success: false, message: 'Invalid credentials' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
@@ -54,10 +58,10 @@ const loginUser = async (req, res) => {
             return res.json({ success: false, message: 'Invalid credentials' });
         }
     } catch (error) {
-        res.status(500).send({
+        console.error('Login error:', error);
+        res.status(500).json({
             success: false,
-            message: 'Error in logging in',
-            error
+            message: 'Error in logging in'
         });
     }
 };
@@ -66,22 +70,29 @@ const userCredits = async (req, res) => {
     try {
         const { userId } = req.body;
         const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
         res.json({ success: true, creditBalance: user.creditBalance, user: { name: user.name } });
 
     } catch (error) {
-        res.status(500).send({
+        console.error('Credits fetch error:', error);
+        res.status(500).json({
             success: false,
-            message: 'Error in fetching user credits',
-            error
+            message: 'Error in fetching user credits'
         });
     }
 };
 
 const googleCallback = async (req, res) => {
     try {
+        if (!req.user || !req.user._id) {
+            return res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=Authentication failed`);
+        }
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
     } catch (error) {
+        console.error('Google callback error:', error);
         res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=Google authentication failed`);
     }
 };

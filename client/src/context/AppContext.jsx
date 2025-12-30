@@ -15,6 +15,9 @@ export const AppContextProvider = (props) => {
 
     const loadCreditsData = async () => {
         try {
+            if (!token) {
+                return;
+            }
             const { data } = await axios.post(`${backendURL}/api/user/credits`, {}, {
                 headers: { token }
             });
@@ -22,11 +25,17 @@ export const AppContextProvider = (props) => {
                 setCredits(data.creditBalance);
                 setUser(data.user);
             } else {
-                toast.error('Failed to load credits data.');
+                console.error('Failed to load credits:', data.message);
+                if (data.message.includes('token')) {
+                    setToken(null);
+                }
             }
         } catch (err) {
-            console.log(err);
-            toast.error('Failed to load credits data.');
+            console.error('Load credits error:', err);
+            if (err.response?.status === 401) {
+                setToken(null);
+                toast.error('Session expired. Please login again.');
+            }
         }
     }
 
@@ -38,19 +47,26 @@ export const AppContextProvider = (props) => {
                 headers: { token }
             });
             if (data.success) {
-                setCredits(data.creditsLeft);
+                setCredits(data.creditBalance);
                 return data.image;
             } else {
                 toast.error(data.message);
-                loadCreditsData();
+                if (data.creditBalance !== undefined) {
+                    setCredits(data.creditBalance);
+                }
                 if (data.creditBalance === 0) {
                     navigate('/buy-credit');
                 }
                 return null;
             }
         } catch (err) {
-            console.log(err);
-            toast.error(err.response?.data?.message || 'Failed to generate image.');
+            console.error('Generate image error:', err);
+            const errorMessage = err.response?.data?.message || 'Failed to generate image.';
+            toast.error(errorMessage);
+            if (err.response?.status === 401) {
+                setToken(null);
+                toast.error('Session expired. Please login again.');
+            }
             return null;
         }
     }
@@ -69,7 +85,9 @@ export const AppContextProvider = (props) => {
         } else {
             localStorage.removeItem('token');
             setUser(null);
+            setCredits(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     const value = {

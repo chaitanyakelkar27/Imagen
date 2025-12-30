@@ -10,6 +10,15 @@ import passport from './config/passport.js';
 
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'CLIENT_URL'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+    console.error('Please create a .env file with all required variables');
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -21,7 +30,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
@@ -38,6 +47,15 @@ app.use('/api/image', imageRouter);
 
 app.get('/', (req, res) => {
     res.send('Server is running properly');
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('Global error handler:', err);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal server error'
+    });
 });
 
 app.listen(PORT, () => {

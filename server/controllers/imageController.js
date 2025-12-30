@@ -11,8 +11,12 @@ export const generateImage = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid request' });
         }
 
-        if (user.creditBalance <= 0 || user.creditBalance === 0) {
-            return res.status(400).json({ success: false, message: 'Insufficient credits. Please buy more credits to generate images.' });
+        if (user.creditBalance <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Insufficient credits. Please buy more credits to generate images.',
+                creditBalance: 0
+            });
         }
 
         const formData = new FormData();
@@ -26,13 +30,17 @@ export const generateImage = async (req, res) => {
 
         const base64Image = Buffer.from(data, 'binary').toString('base64');
         const resultImage = `data:image/png;base64,${base64Image}`;
-        await userModel.findByIdAndUpdate(userId, { $inc: { creditBalance: -1 } });
-        res.status(200).json({ success: true, image: resultImage, creditsLeft: user.creditBalance - 1 });
+        const updatedUser = await userModel.findByIdAndUpdate(
+            userId,
+            { $inc: { creditBalance: -1 } },
+            { new: true }
+        );
+        res.status(200).json({ success: true, image: resultImage, creditBalance: updatedUser.creditBalance });
     } catch (error) {
-        res.status(500).send({
+        console.error('Image generation error:', error);
+        res.status(500).json({
             success: false,
-            message: 'Error in generating image',
-            error
+            message: 'Error in generating image'
         });
     }
 
