@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import session from 'express-session';
 import userRouter from './routes/userRoutes.js';
 import connectDB from './config/mongodb.js';
 import imageRouter from './routes/imageRoutes.js';
@@ -17,9 +18,6 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 app.use(express.json());
 
 app.use(session({
@@ -28,6 +26,9 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: false }
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 await connectDB();
 
