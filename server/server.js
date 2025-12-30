@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import session from 'express-session';
 import userRouter from './routes/userRoutes.js';
 import connectDB from './config/mongodb.js';
 import imageRouter from './routes/imageRoutes.js';
@@ -29,15 +28,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}));
-
 app.use(passport.initialize());
-app.use(passport.session());
 
 await connectDB();
 
@@ -49,7 +40,7 @@ app.get('/', (req, res) => {
     res.send('Server is running properly');
 });
 
-// Global error handler
+
 app.use((err, req, res, next) => {
     console.error('Global error handler:', err);
     res.status(err.status || 500).json({

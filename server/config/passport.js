@@ -10,8 +10,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: `http://localhost:${process.env.PORT || 5000}/api/user/google/callback`,
-            scope: ["profile", "email"]
+            callbackURL: `http://localhost:${process.env.PORT || 5000}/api/user/google/callback`
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
@@ -42,19 +41,6 @@ passport.use(
         }
     )
 );
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await userModel.findById(id);
-        done(null, user);
-    } catch (error) {
-        done(error, null);
-    }
-});
 
 export default passport;
 

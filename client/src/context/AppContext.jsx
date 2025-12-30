@@ -87,7 +87,7 @@ export const AppContextProvider = (props) => {
             setUser(null);
             setCredits(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     }, [token]);
 
     const value = {

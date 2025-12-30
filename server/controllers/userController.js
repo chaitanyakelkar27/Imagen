@@ -13,6 +13,7 @@ const registerUser = async (req, res) => {
         if (existingUser) {
             return res.json({ success: false, message: 'User already exists' });
         }
+        
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const userData = {
