@@ -2,8 +2,7 @@ import axios from 'axios';
 import userModel from '../models/userModel.js';
 import imageModel from '../models/imageModel.js';
 import FormData from 'form-data';
-
-
+import mongoose from 'mongoose';
 
 export const generateImage = async (req, res) => {
     try {
@@ -164,9 +163,58 @@ export const deleteMultipleImages = async (req, res) => {
 };
 
 export const toggleFavorite = async (req, res) => {
-    try { } catch (error) { }
+    try {
+        const { userId } = req.body;
+        const { imageId } = req.params;
+
+        const image = await imageModel.findOne({ _id: imageId, userId });
+
+        if (!image) {
+            return res.status(404).json({ success: false, message: 'Image not found or unauthorized' });
+        }
+
+        image.isFavorite = !image.isFavorite;
+
+        await image.save();
+
+        const message = image.isFavorite
+            ? 'Added to favorites'
+            : 'Removed from favorites';
+
+        res.json({ success: true, message, isFavorite: image.isFavorite });
+
+    } catch (error) {
+        console.error('Toggle favorite error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error in toggling favorite status'
+        });
+    }
 };
 
 export const getUserStats = async (req, res) => {
-    try { } catch (error) { }
+    try {
+        const { userId } = req.body;
+        const totalImages = await imageModel.countDocuments({ userId });
+        const favoriteImages = await imageModel.countDocuments({ userId, isFavorite: true });
+        const categoryStats = await imageModel.aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+            { $group: { _id: '$category', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+        res.json({
+            success: true,
+            stats: {
+                total: totalImages,
+                favorites: favoriteImages,
+                byCategory: categoryStats
+            }
+        });
+    } catch (error) {
+        console.error('Get user stats error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error in fetching user stats'
+        });
+    }
 };
