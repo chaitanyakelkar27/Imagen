@@ -1,11 +1,13 @@
 import axios from 'axios';
 import userModel from '../models/userModel.js';
+import imageModel from '../models/imageModel.js';
 import FormData from 'form-data';
+
 
 
 export const generateImage = async (req, res) => {
     try {
-        const { userId, prompt } = req.body;
+        const { userId, prompt, category } = req.body;
         const user = await userModel.findById(userId);
         if (!user || !prompt) {
             return res.status(400).json({ success: false, message: 'Invalid request' });
@@ -30,12 +32,22 @@ export const generateImage = async (req, res) => {
 
         const base64Image = Buffer.from(data, 'binary').toString('base64');
         const resultImage = `data:image/png;base64,${base64Image}`;
+
+        const newImage = new imageModel({
+            userId,
+            prompt,
+            imageUrl: resultImage,
+            category: category || 'other'
+        })
+        await newImage.save();
+
         const updatedUser = await userModel.findByIdAndUpdate(
             userId,
             { $inc: { creditBalance: -1 } },
             { new: true }
         );
-        res.status(200).json({ success: true, image: resultImage, creditBalance: updatedUser.creditBalance });
+
+        res.status(200).json({ success: true, image: resultImage, imageId: newImage._id, creditBalance: updatedUser.creditBalance });
     } catch (error) {
         console.error('Image generation error:', error);
         res.status(500).json({
@@ -43,5 +55,71 @@ export const generateImage = async (req, res) => {
             message: 'Error in generating image'
         });
     }
+};
 
-}
+export const getUserImages = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const { page = 1, limit = 12, search = '', category = 'all', isFavorite, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+
+        const query = { userId };
+        if (search && search.trim() !== '') {
+            query.prompt = { $regex: search.trim(), $options: 'i' };
+        }
+        if (category && category !== 'all') {
+            query.category = category;
+        }
+        if (isFavorite !== undefined) {
+            query.isFavorite = isFavorite === 'true';
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+        const images = await imageModel
+            .find(query)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean();
+
+        const totalImages = await imageModel.countDocuments(query);
+
+        res.json({
+            success: true,
+            images,
+            pagination: {
+                totalImages,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(totalImages / parseInt(limit)),
+                hasNextPage: parseInt(page) * parseInt(limit) < totalImages,
+                hasPrevPage: parseInt(page) > 1
+            }
+        });
+
+    } catch (error) {
+        console.error('Get user images error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error in fetching images'
+        });
+    }
+};
+
+export const deleteImage = async (req, res) => {
+    try { } catch (error) { }
+};
+
+export const deleteMultipleImages = async (req, res) => {
+    try { } catch (error) { }
+};
+
+export const toggleFavorite = async (req, res) => {
+    try { } catch (error) { }
+};
+
+export const getUserStats = async (req, res) => {
+    try { } catch (error) { }
+};
