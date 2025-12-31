@@ -109,7 +109,25 @@ export const getUserImages = async (req, res) => {
 };
 
 export const deleteImage = async (req, res) => {
-    try { } catch (error) { }
+    try {
+        const { userId } = req.body;
+        const { imageId } = req.params;
+
+        const image = await imageModel.findOne({ _id: imageId, userId });
+
+        if (!image) {
+            return res.status(404).json({ success: false, message: 'Image not found or unauthorized' });
+        }
+
+        await imageModel.findByIdAndDelete(imageId);
+
+        res.json({ success: true, message: 'Image deleted successfully' });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error in deleting image'
+        });
+    }
 };
 
 export const deleteMultipleImages = async (req, res) => {
