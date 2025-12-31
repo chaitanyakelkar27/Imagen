@@ -123,6 +123,7 @@ export const deleteImage = async (req, res) => {
 
         res.json({ success: true, message: 'Image deleted successfully' });
     } catch (error) {
+        console.error('Delete image error:', error);
         res.status(500).json({
             success: false,
             message: 'Error in deleting image'
@@ -131,7 +132,35 @@ export const deleteImage = async (req, res) => {
 };
 
 export const deleteMultipleImages = async (req, res) => {
-    try { } catch (error) { }
+    try {
+        const { userId, imageIds } = req.body;
+
+        if (!Array.isArray(imageIds) || imageIds.length === 0) {
+            return res.status(400).json({ success: false, message: 'No image IDs provided' });
+        }
+
+        if (imageIds.length > 50) {
+            return res.status(400).json({ success: false, message: 'Cannot delete more than 50 images at once' });
+        }
+
+        const deleteResult = await imageModel.deleteMany({ _id: { $in: imageIds }, userId });
+
+        if (deleteResult.deletedCount === 0) {
+            return res.status(404).json({ success: false, message: 'No images found to delete or unauthorized' });
+        }
+
+        res.json({
+            success: true,
+            message: `${deleteResult.deletedCount} image(s) deleted successfully`,
+            deletedCount: deleteResult.deletedCount
+        });
+    } catch (error) {
+        console.error('Delete multiple images error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error in deleting images'
+        });
+    }
 };
 
 export const toggleFavorite = async (req, res) => {
