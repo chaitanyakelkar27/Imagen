@@ -179,7 +179,7 @@ const Gallery = () => {
                         </div>
                         <button
                             type="submit"
-                            className="px-8 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white rounded-lg hover:scale-105 transition-all"
+                            className="px-8 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all"
                         >
                             Search
                         </button>
@@ -248,7 +248,7 @@ const Gallery = () => {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="w-full max-w-7xl bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4 shadow-lg"
+                        className="w-full max-w-7xl bg-gray-800 text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4 shadow-lg"
                     >
                         <span className="font-semibold text-lg">
                             {selectedImages.length} image(s) selected
@@ -304,7 +304,7 @@ const Gallery = () => {
                     </p>
                     <button
                         onClick={() => window.location.href = '/result'}
-                        className="bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-8 py-3 rounded-full hover:scale-105 transition-all flex items-center gap-2"
+                        className="bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-900 transition-all flex items-center gap-2"
                     >
                         <img src={assets.star_icon} alt="Generate" className="w-5" />
                         Generate Images
@@ -406,19 +406,19 @@ const Gallery = () => {
                                 <button
                                     disabled={!pagination.hasPrevPage}
                                     onClick={() => handlePageChange(filters.page - 1)}
-                                    className="px-5 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition shadow-lg"
+                                    className="px-5 py-2 bg-gray-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-900 transition shadow-lg"
                                 >
                                     Previous
                                 </button>
 
                                 <span className="px-6 py-2 bg-white border border-gray-300 rounded-lg shadow-sm font-medium">
-                                    Page <strong className="text-violet-600">{filters.page}</strong> of <strong className="text-violet-600">{pagination.totalPages}</strong>
+                                    Page <strong className="text-gray-800">{filters.page}</strong> of <strong className="text-gray-800">{pagination.totalPages}</strong>
                                 </span>
 
                                 <button
                                     disabled={!pagination.hasNextPage}
                                     onClick={() => handlePageChange(filters.page + 1)}
-                                    className="px-5 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition shadow-lg"
+                                    className="px-5 py-2 bg-gray-800 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-900 transition shadow-lg"
                                 >
                                     Next
                                 </button>

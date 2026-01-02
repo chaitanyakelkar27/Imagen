@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, userCredits, googleCallback } from '../controllers/userController.js';
+import { registerUser, loginUser, userCredits, googleCallback, payCredits } from '../controllers/userController.js';
 import userAuth from '../middlewares/auth.js';
 import passport from '../config/passport.js';
 
@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/credits', userAuth, userCredits);
+router.post('/pay-credits', userAuth, payCredits);
 
 router.get('/google',
     passport.authenticate('google', {

@@ -9,7 +9,6 @@ import passport from './config/passport.js';
 
 dotenv.config();
 
-// Validate required environment variables
 const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'CLIENT_URL'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 

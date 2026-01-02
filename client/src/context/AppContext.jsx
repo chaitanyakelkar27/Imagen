@@ -231,6 +231,30 @@ export const AppContextProvider = (props) => {
         }
     };
 
+    const payCredits = async (planId) => {
+        try {
+            const { data } = await axios.post(`${backendURL}/api/user/pay-credits`,
+                { planId },
+                { headers: { token } }
+            );
+            if (data.success) {
+                await loadCreditsData();
+                return { success: true, creditsAdded: data.creditsAdded };
+            } else {
+                toast.error(data.message);
+                return { success: false };
+            }
+        } catch (error) {
+            console.error('Payment error:', error);
+            toast.error(error.response?.data?.message || 'Payment failed');
+            if (error.response?.status === 401) {
+                setToken(null);
+                toast.error('Session expired. Please login again.');
+            }
+            return { success: false };
+        }
+    };
+
     const value = {
         user, setUser,
         showLogin, setShowLogin,
@@ -247,7 +271,8 @@ export const AppContextProvider = (props) => {
         deleteImage,
         deleteMultipleImages,
         toggleFavorite,
-        fetchImageStats
+        fetchImageStats,
+        payCredits
     };
 
     return (

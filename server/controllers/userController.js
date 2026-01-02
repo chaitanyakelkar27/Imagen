@@ -98,4 +98,42 @@ const googleCallback = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, userCredits, googleCallback };
+const payCredits = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { planId } = req.body;
+
+        const plans = {
+            'Basic': { credits: 100, price: 10 },
+            'Advanced': { credits: 500, price: 50 },
+            'Business': { credits: 5000, price: 250 }
+        };
+
+        if (!plans[planId]) {
+            return res.status(400).json({ success: false, message: 'Invalid plan selected' });
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        user.creditBalance += plans[planId].credits;
+        await user.save();
+
+        res.json({
+            success: true,
+            message: `Successfully added ${plans[planId].credits} credits`,
+            creditBalance: user.creditBalance,
+            creditsAdded: plans[planId].credits
+        });
+    } catch (error) {
+        console.error('Payment error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error processing payment'
+        });
+    }
+};
+
+export { registerUser, loginUser, userCredits, googleCallback, payCredits };
