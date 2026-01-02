@@ -1,0 +1,28 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "server.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "server.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "server.js"
+        }
+    ],
+    "env": {
+        "MONGODB_URI": "@mongodb_uri",
+        "JWT_SECRET": "@jwt_secret",
+        "CLIPDROP_API": "@clipdrop_api",
+        "GOOGLE_CLIENT_ID": "@google_client_id",
+        "GOOGLE_CLIENT_SECRET": "@google_client_secret",
+        "CLIENT_URL": "@client_url",
+        "SERVER_URL": "@server_url"
+    }
+}

@@ -63,21 +63,21 @@ export const stepsData = [
 export const testimonialsData = [
   {
     image: profile_img_1,
-    name: 'Michael Chen',
+    name: 'Sarah Mitchell',
     role: 'Digital Artist',
     stars: 5,
-    text: `This platform has revolutionized my creative workflow. The AI understands my vision perfectly and delivers stunning results every single time.`
+    text: `This platform has revolutionized my creative workflow. The AI understands my vision perfectly and delivers stunning results every time.`
   },
   {
     image: profile_img_2,
-    name: 'Sarah Mitchell',
+    name: 'Michael Chen',
     role: 'Marketing Specialist',
     stars: 5,
     text: `Creating professional visuals for campaigns has never been easier. The quality is exceptional and it saves me hours of design work.`
   },
   {
     image: profile_img_1,
-    name: 'James Rodriguez',
+    name: 'Jessica Rodriguez',
     role: 'Creative Director',
     stars: 5,
     text: `An absolute game-changer for our creative team. We can prototype visual concepts instantly and iterate faster than ever before.`
