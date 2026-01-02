@@ -6,7 +6,8 @@ import mongoose from 'mongoose';
 
 export const generateImage = async (req, res) => {
     try {
-        const { userId, prompt, category } = req.body;
+        const userId = req.userId;
+        const { prompt, category } = req.body;
         const user = await userModel.findById(userId);
         if (!user || !prompt) {
             return res.status(400).json({ success: false, message: 'Invalid request' });
@@ -58,7 +59,7 @@ export const generateImage = async (req, res) => {
 
 export const getUserImages = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
         const { page = 1, limit = 12, search = '', category = 'all', isFavorite, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
         const query = { userId };
@@ -109,7 +110,7 @@ export const getUserImages = async (req, res) => {
 
 export const deleteImage = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
         const { imageId } = req.params;
 
         const image = await imageModel.findOne({ _id: imageId, userId });
@@ -132,7 +133,8 @@ export const deleteImage = async (req, res) => {
 
 export const deleteMultipleImages = async (req, res) => {
     try {
-        const { userId, imageIds } = req.body;
+        const userId = req.userId;
+        const { imageIds } = req.body;
 
         if (!Array.isArray(imageIds) || imageIds.length === 0) {
             return res.status(400).json({ success: false, message: 'No image IDs provided' });
@@ -164,7 +166,7 @@ export const deleteMultipleImages = async (req, res) => {
 
 export const toggleFavorite = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
         const { imageId } = req.params;
 
         const image = await imageModel.findOne({ _id: imageId, userId });
@@ -194,7 +196,7 @@ export const toggleFavorite = async (req, res) => {
 
 export const getUserStats = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
         const totalImages = await imageModel.countDocuments({ userId });
         const favoriteImages = await imageModel.countDocuments({ userId, isFavorite: true });
         const categoryStats = await imageModel.aggregate([

@@ -13,7 +13,7 @@ const registerUser = async (req, res) => {
         if (existingUser) {
             return res.json({ success: false, message: 'User already exists' });
         }
-        
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const userData = {
@@ -69,7 +69,7 @@ const loginUser = async (req, res) => {
 
 const userCredits = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });

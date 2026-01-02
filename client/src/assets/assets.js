@@ -34,7 +34,12 @@ export const assets = {
   cross_icon,
   star_group,
   credit_star,
-  profile_icon
+  profile_icon,
+  search_icon: logo_icon,  // Reusing logo_icon for search
+  loading_icon: logo_icon, // Reusing logo_icon for loading
+  trash_icon: cross_icon,  // Reusing cross_icon for trash
+  heart_icon: star_icon,   // Reusing star_icon for unfilled heart
+  heart_filled_icon: credit_star // Reusing credit_star for filled heart
 }
 
 export const stepsData = [

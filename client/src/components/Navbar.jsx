@@ -15,6 +15,9 @@ const Navbar = () => {
                 {
                     user ?
                         <div className='flex items-center gap-5 sm:gap-10'>
+                            <Link to="/gallery" className='text-gray-700 hover:text-violet-600 font-medium transition-colors max-sm:hidden'>
+                                Gallery
+                            </Link>
                             <button onClick={() => navigate('/buy-credit')} className='flex items-center gap-2 bg-white px-4 py-2 rounded-full drop-shadow'>
                                 <img className="w-5" src={assets.credit_star} alt="" />
                                 <p className='text-xs sm:text-sm font-medium text-gray-600'> Credit left : {credits}</p>

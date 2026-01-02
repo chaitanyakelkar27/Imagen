@@ -12,8 +12,8 @@ const imageSchema = new mongoose.Schema({
     isFavorite: { type: Boolean, default: false, index: true },
     category: {
         type: String,
-        enum: ['nature', 'technology', 'people', 'animals', 'architecture', 'others'],
-        default: 'others',
+        enum: ['portrait', 'landscape', 'abstract', 'animals', 'architecture', 'other'],
+        default: 'other',
         index: true
     },
     createdAt: { type: Date, default: Date.now, index: true }
