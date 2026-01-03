@@ -52,6 +52,11 @@ export const AppContextProvider = (props) => {
             });
             if (data.success) {
                 setCredits(data.creditBalance);
+                if (data.isDemo) {
+                    toast.info('Demo mode: Using sample image (API quota reached)', {
+                        autoClose: 5000
+                    });
+                }
                 return data.image;
             } else {
                 toast.error(data.message);

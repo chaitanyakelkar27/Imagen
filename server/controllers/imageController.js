@@ -4,6 +4,18 @@ import imageModel from '../models/imageModel.js';
 import FormData from 'form-data';
 import mongoose from 'mongoose';
 
+// Demo images URLs from Unsplash (free to use)
+const DEMO_IMAGES = [
+    'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1635514569146-9a9607ecf303?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1636955816868-fcb881e57954?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1686140522545-90a3f0e2bb18?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1707343843437-caacff5cfa74?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1707343848552-893e05dba6ac?w=1024&h=1024&fit=crop',
+    'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=1024&h=1024&fit=crop',
+];
+
 export const generateImage = async (req, res) => {
     try {
         const userId = req.userId;
@@ -21,17 +33,29 @@ export const generateImage = async (req, res) => {
             });
         }
 
-        const formData = new FormData();
-        formData.append('prompt', prompt);
-        const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', formData, {
-            headers: {
-                'x-api-key': process.env.CLIPDROP_API,
-            },
-            responseType: 'arraybuffer'
-        });
+        let resultImage;
+        let isDemo = false;
 
-        const base64Image = Buffer.from(data, 'binary').toString('base64');
-        const resultImage = `data:image/png;base64,${base64Image}`;
+        try {
+            // Try to use real Clipdrop API
+            const formData = new FormData();
+            formData.append('prompt', prompt);
+            const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', formData, {
+                headers: {
+                    'x-api-key': process.env.CLIPDROP_API,
+                },
+                responseType: 'arraybuffer'
+            });
+
+            const base64Image = Buffer.from(data, 'binary').toString('base64');
+            resultImage = `data:image/png;base64,${base64Image}`;
+        } catch (apiError) {
+            // If API fails (quota exceeded or error), use demo image
+            console.log('Clipdrop API failed, using demo image:', apiError.response?.status);
+            const randomIndex = Math.floor(Math.random() * DEMO_IMAGES.length);
+            resultImage = DEMO_IMAGES[randomIndex];
+            isDemo = true;
+        }
 
         const newImage = new imageModel({
             userId,
@@ -47,7 +71,13 @@ export const generateImage = async (req, res) => {
             { new: true }
         );
 
-        res.status(200).json({ success: true, image: resultImage, imageId: newImage._id, creditBalance: updatedUser.creditBalance });
+        res.status(200).json({
+            success: true,
+            image: resultImage,
+            imageId: newImage._id,
+            creditBalance: updatedUser.creditBalance,
+            isDemo
+        });
     } catch (error) {
         console.error('Image generation error:', error);
         res.status(500).json({
