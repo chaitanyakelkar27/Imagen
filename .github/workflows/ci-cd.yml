@@ -19,8 +19,14 @@ jobs:
           echo "MONGO_ROOT_PASSWORD=test123" >> .env
           echo "MONGO_DATABASE=imagen_test" >> .env
           echo "JWT_SECRET=test-secret" >> .env
-          echo "CORS_ORIGIN=http://localhost:3000" >> .env
+          echo "CORS_ORIGIN=http://localhost" >> .env
           echo "VITE_API_URL=http://localhost:5000" >> .env
+          echo "SESSION_SECRET=test-session-secret" >> .env
+          echo "SERVER_URL=http://localhost:5000" >> .env
+          echo "CLIENT_URL=http://localhost" >> .env
+          echo "GOOGLE_CLIENT_ID=test-client-id" >> .env
+          echo "GOOGLE_CLIENT_SECRET=test-client-secret" >> .env
+          echo "CLIPDROP_API=test-api-key" >> .env
       
       - name: Build and test with Docker Compose
         run: |
@@ -31,12 +37,12 @@ jobs:
       - name: Check server health
         run: |
           # DevOps Magic: Instead of 'sleep 10', we tell curl to try 5 times, waiting 5 seconds between tries.
-          curl --retry 5 --retry-delay 5 --retry-connrefused -f http://localhost:5000/health || exit 1
+          curl --retry 5 --retry-delay 5 --retry-connrefused -f http://localhost:5000 || exit 1
       
       - name: Check client health
         run: |
-          # Updated to port 3000 to match your dev environment mapping
-          curl --retry 5 --retry-delay 5 --retry-connrefused -f http://localhost:3000 || exit 1
+          # Check production client on port 80
+          curl --retry 5 --retry-delay 5 --retry-connrefused -f http://localhost:80 || exit 1
       
       - name: Tear down
         run: docker compose down -v
