@@ -30,19 +30,27 @@ jobs:
       
       - name: Build and test with Docker Compose
         run: |
-          # Changed to modern 'docker compose' (no hyphen)
           docker compose -f docker-compose.yml up -d --build
+          echo "Waiting for containers to be healthy..."
+          # Wait for MongoDB to be healthy first
+          timeout 60 bash -c 'until docker inspect --format="{{.State.Health.Status}}" imagen-mongodb | grep -q healthy; do sleep 2; echo "Waiting for MongoDB..."; done'
+          # Wait for server to be healthy
+          timeout 90 bash -c 'until docker inspect --format="{{.State.Health.Status}}" imagen-server | grep -q healthy; do sleep 2; echo "Waiting for server..."; done'
           docker compose ps
       
       - name: Check server health
         run: |
-          # DevOps Magic: Instead of 'sleep 10', we tell curl to try 5 times, waiting 5 seconds between tries.
-          curl --retry 5 --retry-delay 5 --retry-connrefused -f http://localhost:5000 || exit 1
+          echo "Testing server endpoint..."
+          docker logs imagen-server --tail 20
+          curl -v http://localhost:5000 || exit 1
       
       - name: Check client health
         run: |
-          # Check production client on port 80
-          curl --retry 5 --retry-delay 5 --retry-connrefused -f http://localhost:80 || exit 1
+          echo "Testing client endpoint..."
+          # Wait for client to be healthy
+          timeout 60 bash -c 'until docker inspect --format="{{.State.Health.Status}}" imagen-client | grep -q healthy; do sleep 2; echo "Waiting for client..."; done'
+          docker logs imagen-client --tail 20
+          curl -v http://localhost:80 || exit 1
       
       - name: Tear down
         run: docker compose down -v
