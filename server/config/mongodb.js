@@ -10,7 +10,12 @@ const connectDB = async () => {
             console.error('MongoDB connection error:', err);
         });
 
-        await mongoose.connect(`${process.env.MONGODB_URI}/imagen`);
+        // Handle both local Docker and cloud MongoDB Atlas URIs
+        const mongoURI = process.env.MONGODB_URI.includes('mongodb+srv') 
+            ? `${process.env.MONGODB_URI}/imagen`  // Cloud Atlas
+            : `${process.env.MONGODB_URI}/imagen?authSource=admin`;  // Local Docker
+
+        await mongoose.connect(mongoURI);
     } catch (error) {
         console.error('Failed to connect to MongoDB:', error);
         process.exit(1);
