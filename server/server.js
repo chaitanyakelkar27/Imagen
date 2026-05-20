@@ -20,12 +20,36 @@ if (missingEnvVars.length > 0) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
+
+const allowedOrigins = [
+    process.env.CLIENT_URL,
+    process.env.CORS_ORIGIN,
+    'http://localhost:3000',
+    'http://localhost:3001'
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        const err = new Error('CORS origin not allowed');
+        err.status = 403;
+        return callback(err);
+    },
     credentials: true,
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    next();
+});
 
 app.use(passport.initialize());
 

@@ -14,25 +14,29 @@ passport.use(
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
+                const email = profile.emails?.[0]?.value?.trim().toLowerCase();
+                if (!email) {
+                    return done(null, false, { message: 'Google account did not provide an email address.' });
+                }
                 let existingUser = await userModel.findOne({ googleId: profile.id });
                 if (existingUser) {
                     return done(null, existingUser);
                 }
-                existingUser = await userModel.findOne({ email: profile.emails[0].value });
+                existingUser = await userModel.findOne({ email });
                 if (existingUser) {
                     existingUser.googleId = profile.id;
                     existingUser.authProvider = 'google';
-                    existingUser.profilePicture = profile.photos[0]?.value;
+                    existingUser.profilePic = profile.photos?.[0]?.value;
                     await existingUser.save();
                     return done(null, existingUser);
                 }
 
                 const newUser = await userModel.create({
                     name: profile.displayName,
-                    email: profile.emails[0].value,
+                    email,
                     googleId: profile.id,
                     authProvider: 'google',
-                    profilePicture: profile.photos[0]?.value
+                    profilePic: profile.photos?.[0]?.value
                 });
                 return done(null, newUser);
             } catch (error) {

@@ -2,16 +2,33 @@ import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+const normalizeEmail = (email = '') => email.trim().toLowerCase();
+
+const isValidEmail = (email) => /^(?:[a-zA-Z0-9_'^&/+-])+(?:\.(?:[a-zA-Z0-9_'^&/+-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(email);
+
+const isStrongEnoughPassword = (password) => typeof password === 'string' && password.length >= 8;
+
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
+        const email = normalizeEmail(req.body.email);
+        const password = typeof req.body.password === 'string' ? req.body.password : '';
+
         if (!name || !email || !password) {
-            return res.json({ success: false, message: 'Please provide all required fields' });
+            return res.status(400).json({ success: false, message: 'Invalid registration details' });
+        }
+
+        if (name.length < 2 || name.length > 80) {
+            return res.status(400).json({ success: false, message: 'Invalid registration details' });
+        }
+
+        if (!isValidEmail(email) || !isStrongEnoughPassword(password)) {
+            return res.status(400).json({ success: false, message: 'Invalid registration details' });
         }
 
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
-            return res.json({ success: false, message: 'User already exists' });
+            return res.status(409).json({ success: false, message: 'Unable to create account' });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -24,7 +41,7 @@ const registerUser = async (req, res) => {
         const newUser = new userModel(userData);
         const user = await newUser.save();
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.json({ success: true, token, user: { name: user.name } });
+        res.status(201).json({ success: true, token, user: { name: user.name } });
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({
@@ -36,28 +53,27 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await userModel.findOne({ email })
-        if (!user) {
-            return res.json({ success: false, message: 'User not found' })
+        const email = normalizeEmail(req.body.email);
+        const password = typeof req.body.password === 'string' ? req.body.password : '';
+
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: 'Invalid credentials' });
         }
 
-        if (user.authProvider === 'google') {
-            return res.json({ success: false, message: 'Please login using Google Sign-In' });
-        }
+        const user = await userModel.findOne({ email }).select('+password');
 
-        if (!user.password) {
-            return res.json({ success: false, message: 'Invalid credentials' });
+        if (!user || user.authProvider === 'google' || !user.password) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
-        if (isMatch) {
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-            return res.json({ success: true, token, user: { name: user.name } });
-        } else {
-            return res.json({ success: false, message: 'Invalid credentials' });
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        return res.json({ success: true, token, user: { name: user.name } });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({
@@ -88,13 +104,13 @@ const userCredits = async (req, res) => {
 const googleCallback = async (req, res) => {
     try {
         if (!req.user || !req.user._id) {
-            return res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=Authentication failed`);
+            return res.redirect(`${process.env.CLIENT_URL}/auth/callback#error=Authentication%20failed`);
         }
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
+        res.redirect(`${process.env.CLIENT_URL}/auth/callback#token=${encodeURIComponent(token)}`);
     } catch (error) {
         console.error('Google callback error:', error);
-        res.redirect(`${process.env.CLIENT_URL}/auth/callback?error=Google authentication failed`);
+        res.redirect(`${process.env.CLIENT_URL}/auth/callback#error=Google%20authentication%20failed`);
     }
 };
 
