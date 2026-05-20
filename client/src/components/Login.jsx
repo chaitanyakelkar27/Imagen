@@ -12,6 +12,8 @@ const Login = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [formError, setFormError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -22,7 +24,15 @@ const Login = () => {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
+        setFormError('');
+
+        if (!backendURL) {
+            setFormError('Backend URL is missing. Set VITE_BACKEND_URL in client/.env.');
+            return;
+        }
+
         try {
+            setIsSubmitting(true);
             if (state === 'Login') {
                 const { data } = await axios.post(`${backendURL}/api/user/login`, {
                     email,
@@ -48,12 +58,19 @@ const Login = () => {
                     setUser(data.user);
                     toast.success('Account Created Successfully');
                 } else {
-                    toast.error(data.message);
+                    setFormError(data.message || 'Registration failed.');
+                    toast.error(data.message || 'Registration failed.');
                 }
             }
 
         } catch (error) {
-            toast.error('Something went wrong. Please try again.');
+            const message = error.response?.data?.message
+                || error.message
+                || 'Something went wrong. Please try again.';
+            setFormError(message);
+            toast.error(message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -74,6 +91,12 @@ const Login = () => {
                 <h1 className='text-center text-2xl text-neutral-700 font-medium'>{state}</h1>
                 <p className='text-sm text-center mb-5'>Welcome back! Please sign in to continue</p>
 
+                {formError && (
+                    <div className='mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700'>
+                        {formError}
+                    </div>
+                )}
+
                 {state !== 'Login' && (
                     <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-5'>
                         <img src={assets.user_icon} alt="" width={20} />
@@ -93,8 +116,12 @@ const Login = () => {
 
                 <p className='text-sm text-blue-600 my-4 cursor-pointer'>Forgot password?</p>
 
-                <button type='submit' className='bg-blue-600 w-full text-white py-2 rounded-full'>
-                    {state === 'Login' ? 'login' : 'create account'}
+                <button
+                    type='submit'
+                    disabled={isSubmitting}
+                    className='bg-blue-600 w-full text-white py-2 rounded-full disabled:opacity-60 disabled:cursor-not-allowed'
+                >
+                    {isSubmitting ? 'please wait...' : state === 'Login' ? 'login' : 'create account'}
                 </button>
 
                 <div className='mt-4'>

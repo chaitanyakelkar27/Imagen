@@ -9,8 +9,9 @@ const AuthCallback = () => {
     const { setToken, setShowLogin } = useContext(AppContext);
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        const error = searchParams.get('error');
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const token = hashParams.get('token') || searchParams.get('token');
+        const error = hashParams.get('error') || searchParams.get('error');
 
         if (token) {
             setToken(token);
