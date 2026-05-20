@@ -15,20 +15,39 @@ const registerUser = async (req, res) => {
         const password = typeof req.body.password === 'string' ? req.body.password : '';
 
         if (!name || !email || !password) {
-            return res.status(400).json({ success: false, message: 'Invalid registration details' });
+            return res.status(400).json({
+                success: false,
+                message: 'Name, email, and password are required.'
+            });
         }
 
         if (name.length < 2 || name.length > 80) {
-            return res.status(400).json({ success: false, message: 'Invalid registration details' });
+            return res.status(400).json({
+                success: false,
+                message: 'Name must be between 2 and 80 characters.'
+            });
         }
 
-        if (!isValidEmail(email) || !isStrongEnoughPassword(password)) {
-            return res.status(400).json({ success: false, message: 'Invalid registration details' });
+        if (!isValidEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid email address.'
+            });
+        }
+
+        if (!isStrongEnoughPassword(password)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters long.'
+            });
         }
 
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
-            return res.status(409).json({ success: false, message: 'Unable to create account' });
+            return res.status(409).json({
+                success: false,
+                message: 'Unable to create account. If you already have an account, try logging in or reset your password.'
+            });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -46,7 +65,7 @@ const registerUser = async (req, res) => {
         console.error('Registration error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error in registering user'
+            message: 'Unable to create account right now. Please try again later.'
         });
     }
 };
@@ -57,19 +76,28 @@ const loginUser = async (req, res) => {
         const password = typeof req.body.password === 'string' ? req.body.password : '';
 
         if (!email || !password) {
-            return res.status(400).json({ success: false, message: 'Invalid credentials' });
+            return res.status(400).json({
+                success: false,
+                message: 'Email and password are required.'
+            });
         }
 
         const user = await userModel.findOne({ email }).select('+password');
 
         if (!user || user.authProvider === 'google' || !user.password) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password. If you signed up with Google, use Google sign-in.'
+            });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password. If you signed up with Google, use Google sign-in.'
+            });
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -78,7 +106,7 @@ const loginUser = async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error in logging in'
+            message: 'Unable to log in right now. Please try again later.'
         });
     }
 };
@@ -88,7 +116,10 @@ const userCredits = async (req, res) => {
         const userId = req.userId;
         const user = await userModel.findById(userId);
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({
+                success: false,
+                message: 'User not found. Please sign in again.'
+            });
         }
         res.json({ success: true, creditBalance: user.creditBalance, user: { name: user.name } });
 
@@ -126,12 +157,18 @@ const payCredits = async (req, res) => {
         };
 
         if (!plans[planId]) {
-            return res.status(400).json({ success: false, message: 'Invalid plan selected' });
+            return res.status(400).json({
+                success: false,
+                message: 'Please choose a valid plan.'
+            });
         }
 
         const user = await userModel.findById(userId);
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+            return res.status(404).json({
+                success: false,
+                message: 'User not found. Please sign in again.'
+            });
         }
 
         user.creditBalance += plans[planId].credits;
@@ -147,7 +184,7 @@ const payCredits = async (req, res) => {
         console.error('Payment error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error processing payment'
+            message: 'Unable to process payment right now. Please try again later.'
         });
     }
 };

@@ -44,7 +44,9 @@ const Login = () => {
                     setUser(data.user);
                     toast.success('Login Successful');
                 } else {
-                    toast.error(data.message);
+                    const message = data.message || 'Unable to log in. Please try again.';
+                    setFormError(message);
+                    toast.error(message);
                 }
             } else {
                 const { data } = await axios.post(`${backendURL}/api/user/register`, {
@@ -58,15 +60,18 @@ const Login = () => {
                     setUser(data.user);
                     toast.success('Account Created Successfully');
                 } else {
-                    setFormError(data.message || 'Registration failed.');
-                    toast.error(data.message || 'Registration failed.');
+                    const message = data.message || 'Unable to create account. Please try again.';
+                    setFormError(message);
+                    toast.error(message);
                 }
             }
 
         } catch (error) {
             const message = error.response?.data?.message
                 || error.message
-                || 'Something went wrong. Please try again.';
+                || (state === 'Login'
+                    ? 'Unable to log in right now. Please try again.'
+                    : 'Unable to create account right now. Please try again.');
             setFormError(message);
             toast.error(message);
         } finally {
@@ -89,7 +94,11 @@ const Login = () => {
         >
             <motion.form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500'>
                 <h1 className='text-center text-2xl text-neutral-700 font-medium'>{state}</h1>
-                <p className='text-sm text-center mb-5'>Welcome back! Please sign in to continue</p>
+                <p className='text-sm text-center mb-5'>
+                    {state === 'Login'
+                        ? 'Welcome back! Please sign in to continue.'
+                        : 'Create your account to get started.'}
+                </p>
 
                 {formError && (
                     <div className='mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700'>
