@@ -19,7 +19,8 @@ const AuthCallback = () => {
             toast.success('Login Successful!');
             navigate('/');
         } else if (error) {
-            toast.error('Authentication failed');
+            const errorMessage = decodeURIComponent(error);
+            toast.error(errorMessage || 'Authentication failed');
             navigate('/');
         }
     }, [searchParams, setToken, setShowLogin, navigate]);
