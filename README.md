@@ -142,6 +142,64 @@ cd API Reference
 - `PATCH /api/image/toggle-favorite/:id` - Update favorite status
 - `GET /api/image/stats` - Retrieve usage statistics
 
+## 🔧 Challenges & Solutions
+
+During development, several critical challenges were encountered and solved:
+
+### 1. **Authentication Security (Postman API Bypass)**
+   - **Problem**: Initial authentication endpoint lacked proper validation. Attackers could craft malformed requests via tools like Postman to bypass security checks. Generic error messages also revealed account existence.
+   - **Solution**: 
+     - Implemented specific error messages that provide user guidance without revealing account enumeration information
+     - Added comprehensive input validation for all auth fields (name length, email format, password strength)
+     - Separated validation errors (helpful for users) from auth errors (generic for security)
+     - Error messages now guide users (e.g., "Password must be at least 8 characters" during signup, but "Invalid email or password" during login)
+
+### 2. **API Quota Exhaustion & User Experience**
+   - **Problem**: When the Clipdrop API quota was reached, users would get blank results or confusing errors, breaking the application experience.
+   - **Solution**:
+     - Implemented intelligent **demo mode** that automatically detects when the API quota is exhausted
+     - System falls back to curated sample images from Unsplash with a clear notification
+     - Users can continue exploring the app without interruption
+     - Maintains credit system integrity while providing a graceful degradation
+
+### 3. **Docker Compatibility Issues**
+   - **Problem**: App was configured for Vercel serverless deployment but failed in Docker environments due to:
+     - MongoDB connection string differences (Atlas vs local Docker MongoDB)
+     - Vite dev server not accessible in Docker volumes
+     - Missing authSource parameter for MongoDB authentication
+   - **Solution**:
+     - Enhanced MongoDB configuration to auto-detect environment (Atlas vs local Docker)
+     - Configured Vite to use polling for Docker volume changes
+     - Added authSource parameter for proper Docker MongoDB authentication
+     - Maintained backward compatibility with Vercel deployment
+
+### 4. **CI/CD Pipeline Health Check Failures**
+   - **Problem**: GitHub Actions CI workflow was failing because:
+     - Health check endpoint path mismatch (`/health` vs `/`)
+     - Missing critical environment variables in CI environment
+     - Docker Compose health checks pointing to wrong endpoints
+   - **Solution**:
+     - Standardized health check to use root endpoint (`/`)
+     - Added all required env vars to CI workflow configuration (SESSION_SECRET, API keys, URLs)
+     - Updated docker-compose.yml health check configuration
+     - Set proper ports for health checks (3000 for dev, 80 for production)
+
+### 5. **Multi-Container Orchestration**
+   - **Problem**: Coordinating client, server, and MongoDB containers with proper networking and health checks.
+   - **Solution**:
+     - Set up Docker Compose with proper service dependencies
+     - Implemented health checks for all services
+     - Configured environment-based build triggers for automated Docker Hub deployment
+     - Added GitHub Actions workflow for CI/CD with automated testing
+
+### 6. **Environment Configuration Management**
+   - **Problem**: Managing different configurations across local development, Docker, and Vercel deployment.
+   - **Solution**:
+     - Created comprehensive `.env.example` template for developers
+     - Implemented environment-aware configuration in both frontend and backend
+     - Added fallback values for optional configurations
+     - Documented all required environment variables
+
 ## Deployment
 
 This project is configured for deployment on Vercel.
