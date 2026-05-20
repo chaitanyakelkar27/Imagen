@@ -15,6 +15,9 @@ passport.use(
         async (accessToken, refreshToken, profile, done) => {
             try {
                 const email = profile.emails?.[0]?.value?.trim().toLowerCase();
+                if (!email) {
+                    return done(null, false, { message: 'Google account did not provide an email address.' });
+                }
                 let existingUser = await userModel.findOne({ googleId: profile.id });
                 if (existingUser) {
                     return done(null, existingUser);

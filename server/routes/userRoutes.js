@@ -7,9 +7,20 @@ const router = express.Router();
 
 const createRateLimiter = ({ windowMs, max, message }) => {
     const attempts = new Map();
+    let requestCount = 0;
 
     return (req, res, next) => {
-        const clientKey = req.ip || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+        requestCount += 1;
+        if (requestCount % 1000 === 0) {
+            const now = Date.now();
+            for (const [key, record] of attempts.entries()) {
+                if (now >= record.resetAt) {
+                    attempts.delete(key);
+                }
+            }
+        }
+
+        const clientKey = req.ip || req.socket?.remoteAddress || 'unknown';
         const now = Date.now();
         const record = attempts.get(clientKey);
 

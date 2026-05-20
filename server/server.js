@@ -21,6 +21,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.disable('x-powered-by');
+app.set('trust proxy', 1);
 
 const allowedOrigins = [
     process.env.CLIENT_URL,
@@ -34,7 +35,9 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
-        return callback(new Error(`CORS blocked for origin: ${origin}`));
+        const err = new Error('CORS origin not allowed');
+        err.status = 403;
+        return callback(err);
     },
     credentials: true,
 }));
