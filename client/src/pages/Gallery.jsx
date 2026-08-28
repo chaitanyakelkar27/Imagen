@@ -12,6 +12,8 @@ const Gallery = () => {
         deleteImage,
         deleteMultipleImages,
         toggleFavorite,
+        fetchImageStats,
+        imageStats,
         token
     } = useContext(AppContext);
 
@@ -31,6 +33,7 @@ const Gallery = () => {
     useEffect(() => {
         if (token) {
             loadImages();
+            fetchImageStats();
         }
     }, [filters, token]);
 
@@ -72,6 +75,7 @@ const Gallery = () => {
             if (success) {
                 setSelectedImages([]);
                 loadImages();
+                fetchImageStats();
             }
         }
     };
@@ -80,7 +84,10 @@ const Gallery = () => {
         e.stopPropagation();
         if (window.confirm('Delete this image?')) {
             const success = await deleteImage(imageId);
-            if (success) loadImages();
+            if (success) {
+                loadImages();
+                fetchImageStats();
+            }
         }
     };
 
@@ -88,6 +95,7 @@ const Gallery = () => {
         e.stopPropagation();
         await toggleFavorite(imageId);
         loadImages();
+        fetchImageStats();
     };
 
     const handleDownload = (imageUrl, prompt, e) => {
@@ -158,6 +166,49 @@ const Gallery = () => {
                     {pagination.totalImages || 0} image{pagination.totalImages !== 1 ? 's' : ''} generated
                 </motion.p>
             </div>
+
+            {imageStats && (
+                <motion.div
+                    className="w-full max-w-7xl bg-white rounded-2xl shadow-md p-6 mb-6 border border-gray-100"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <span className="text-xl">📊</span> Creative Overview
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
+                            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl text-xl">🎨</div>
+                            <div>
+                                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Generations</p>
+                                <p className="text-2xl font-bold text-gray-800">{imageStats.total || 0}</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
+                            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl text-xl">⭐</div>
+                            <div>
+                                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Favorites</p>
+                                <p className="text-2xl font-bold text-gray-800">{imageStats.favorites || 0}</p>
+                            </div>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col justify-center">
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">Categories Breakdown</p>
+                            <div className="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
+                                {imageStats.byCategory && imageStats.byCategory.length > 0 ? (
+                                    imageStats.byCategory.map((cat) => (
+                                        <span key={cat._id} className="text-xs bg-white border border-gray-200 px-2.5 py-1 rounded-full text-gray-700 font-medium shadow-xs">
+                                            {cat._id || 'other'}: <strong className="text-blue-600">{cat.count}</strong>
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="text-xs text-gray-400 italic">No categories yet</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
 
             <motion.div
                 className="w-full max-w-7xl bg-white rounded-2xl shadow-lg p-6 mb-6"
