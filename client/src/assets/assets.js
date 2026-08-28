@@ -15,6 +15,7 @@ import step_icon_3 from './step_icon_3.svg'
 import email_icon from './email_icon.svg'
 import lock_icon from './lock_icon.svg'
 import cross_icon from './cross_icon.svg'
+import download_icon from './download_icon.svg'
 import star_group from './star_group.png'
 import credit_star from './credit_star.svg'
 import profile_icon from './profile_icon.png'
@@ -32,6 +33,7 @@ export const assets = {
   email_icon,
   lock_icon,
   cross_icon,
+  download_icon,
   star_group,
   credit_star,
   profile_icon,
