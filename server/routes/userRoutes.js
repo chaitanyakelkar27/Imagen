@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, userCredits, googleCallback, payCredits } from '../controllers/userController.js';
+import { registerUser, loginUser, userCredits, googleCallback, payCredits, forgotPassword, resetPassword } from '../controllers/userController.js';
 import userAuth from '../middlewares/auth.js';
 import passport from '../config/passport.js';
 
@@ -46,6 +46,8 @@ const authAttemptLimiter = createRateLimiter({
 
 router.post('/register', authAttemptLimiter, registerUser);
 router.post('/login', authAttemptLimiter, loginUser);
+router.post('/forgot-password', authAttemptLimiter, forgotPassword);
+router.post('/reset-password', authAttemptLimiter, resetPassword);
 router.post('/credits', userAuth, userCredits);
 router.post('/pay-credits', userAuth, payCredits);
 

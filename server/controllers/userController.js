@@ -1,6 +1,9 @@
 import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import axios from "axios";
+import nodemailer from "nodemailer";
 
 const normalizeEmail = (email = '') => email.trim().toLowerCase();
 
@@ -189,4 +192,183 @@ const payCredits = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, userCredits, googleCallback, payCredits };
+const sendResetEmail = async (email, resetToken, name) => {
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const resetUrl = `${clientUrl}/reset-password?token=${resetToken}`;
+
+    const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h2 style="color: #333;">Password Reset Request</h2>
+            <p>Hi ${name || 'there'},</p>
+            <p>We received a request to reset your password for your Imagen account.</p>
+            <p>Click the button below to set a new password. This link will expire in 15 minutes:</p>
+            <div style="margin: 30px 0;">
+                <a href="${resetUrl}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
+            </div>
+            <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
+            <p style="color: #2563eb; font-size: 14px; word-break: break-all;">${resetUrl}</p>
+            <p style="color: #888; font-size: 12px; margin-top: 30px;">If you didn't request this email, you can safely ignore it.</p>
+        </div>
+    `;
+
+    // 1. Try Gmail / SMTP via Nodemailer if SMTP_USER & SMTP_PASS are configured
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+        try {
+            const transporter = nodemailer.createTransport({
+                host: process.env.SMTP_HOST || 'smtp.gmail.com',
+                port: parseInt(process.env.SMTP_PORT || '465'),
+                secure: process.env.SMTP_SECURE !== 'false',
+                auth: {
+                    user: process.env.SMTP_USER,
+                    pass: process.env.SMTP_PASS
+                }
+            });
+
+            await transporter.sendMail({
+                from: process.env.EMAIL_FROM || `Imagen <${process.env.SMTP_USER}>`,
+                to: email,
+                subject: 'Password Reset Request - Imagen',
+                html: htmlContent
+            });
+            console.log(`Password reset email sent successfully via Gmail SMTP to ${email}`);
+            return resetUrl;
+        } catch (smtpError) {
+            console.error('Error sending email via SMTP:', smtpError.message);
+        }
+    }
+
+    // 2. Try Resend API if RESEND_API_KEY is configured
+    if (process.env.RESEND_API_KEY) {
+        try {
+            await axios.post('https://api.resend.com/emails', {
+                from: process.env.EMAIL_FROM || 'Imagen <onboarding@resend.dev>',
+                to: [email],
+                subject: 'Password Reset Request - Imagen',
+                html: htmlContent
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log(`Password reset email sent successfully via Resend to ${email}`);
+            return resetUrl;
+        } catch (resendError) {
+            console.error('Error sending email via Resend:', resendError.response?.data || resendError.message);
+        }
+    }
+
+    // 3. Fallback to console output
+    console.log(`[DEMO MODE - No email service configured] Reset URL for ${email}: ${resetUrl}`);
+    // Fallback: log reset URL to console (useful in development)
+    console.log(`[DEMO MODE - No SMTP configured] Reset URL for ${email}: ${resetUrl}`);
+    return resetUrl;
+};
+
+const forgotPassword = async (req, res) => {
+    try {
+        const email = normalizeEmail(req.body.email);
+
+        if (!email || !isValidEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a valid email address.'
+            });
+        }
+
+        const user = await userModel.findOne({ email }).select('+password');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'No account found with this email address. Please register for a new account.'
+            });
+        }
+
+        // Classify user authentication method using authProvider field
+        if (user.authProvider === 'google') {
+            return res.status(400).json({
+                success: false,
+                authProvider: 'google',
+                message: 'This account was created using Google Sign-In. Please click "Continue with Google" to log in.'
+            });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+        await user.save();
+
+        await sendResetEmail(user.email, resetToken, user.name);
+
+        return res.json({
+            success: true,
+            authProvider: 'local',
+            message: 'Password reset link has been sent to your email address. Please check your inbox.'
+        });
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Unable to process password reset request right now. Please try again later.'
+        });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || typeof token !== 'string') {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid or missing password reset token.'
+            });
+        }
+
+        if (!newPassword || !isStrongEnoughPassword(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters long.'
+            });
+        }
+
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        const user = await userModel.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        }).select('+password +resetPasswordToken +resetPasswordExpires');
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password reset link is invalid or has expired. Please request a new link.'
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: 'Password reset successful! You can now log in with your new password.'
+        });
+
+    } catch (error) {
+        console.error('Reset password error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Unable to reset password right now. Please try again later.'
+        });
+    }
+};
+
+export { registerUser, loginUser, userCredits, googleCallback, payCredits, forgotPassword, resetPassword };
