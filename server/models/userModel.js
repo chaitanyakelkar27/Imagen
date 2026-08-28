@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
     googleId: { type: String, unique: true, sparse: true },
     profilePic: { type: String },
     authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
-    creditBalance: { type: Number, default: 5 }
+    creditBalance: { type: Number, default: 5 },
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false }
 });
 
 const userModel = mongoose.models.user || mongoose.model('user', userSchema);

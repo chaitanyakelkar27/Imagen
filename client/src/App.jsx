@@ -5,6 +5,7 @@ import BuyCredit from './pages/BuyCredit'
 import Result from './pages/Result'
 import Gallery from './pages/Gallery'
 import AuthCallback from './pages/AuthCallback'
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Login from './components/Login'
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/result" element={<Result />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
       <Footer />
     </div>
