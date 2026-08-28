@@ -13,6 +13,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [formError, setFormError] = useState('');
+    const [formSuccess, setFormSuccess] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -25,6 +26,7 @@ const Login = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault();
         setFormError('');
+        setFormSuccess('');
 
         if (!backendURL) {
             setFormError('Backend URL is missing. Set VITE_BACKEND_URL in client/.env.');
@@ -48,7 +50,7 @@ const Login = () => {
                     setFormError(message);
                     toast.error(message);
                 }
-            } else {
+            } else if (state === 'Sign Up') {
                 const { data } = await axios.post(`${backendURL}/api/user/register`, {
                     name,
                     email,
@@ -64,6 +66,18 @@ const Login = () => {
                     setFormError(message);
                     toast.error(message);
                 }
+            } else if (state === 'Forgot Password') {
+                const { data } = await axios.post(`${backendURL}/api/user/forgot-password`, {
+                    email
+                });
+                if (data.success) {
+                    setFormSuccess(data.message);
+                    toast.success(data.message);
+                } else {
+                    const message = data.message || 'Unable to send reset link. Please try again.';
+                    setFormError(message);
+                    toast.error(message);
+                }
             }
 
         } catch (error) {
@@ -71,7 +85,9 @@ const Login = () => {
                 || error.message
                 || (state === 'Login'
                     ? 'Unable to log in right now. Please try again.'
-                    : 'Unable to create account right now. Please try again.');
+                    : state === 'Sign Up'
+                    ? 'Unable to create account right now. Please try again.'
+                    : 'Unable to send reset link right now. Please try again.');
             setFormError(message);
             toast.error(message);
         } finally {
@@ -81,7 +97,6 @@ const Login = () => {
 
     const handleGoogleLogin = () => {
         window.open(`${backendURL}/api/user/google`, "_self");
-
     };
 
     return (
@@ -92,12 +107,14 @@ const Login = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <motion.form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500'>
+            <motion.form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500 w-full max-w-md mx-4'>
                 <h1 className='text-center text-2xl text-neutral-700 font-medium'>{state}</h1>
                 <p className='text-sm text-center mb-5'>
                     {state === 'Login'
                         ? 'Welcome back! Please sign in to continue.'
-                        : 'Create your account to get started.'}
+                        : state === 'Sign Up'
+                        ? 'Create your account to get started.'
+                        : 'Enter your email address to receive a password reset link.'}
                 </p>
 
                 {formError && (
@@ -106,59 +123,73 @@ const Login = () => {
                     </div>
                 )}
 
-                {state !== 'Login' && (
+                {formSuccess && (
+                    <div className='mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700'>
+                        {formSuccess}
+                    </div>
+                )}
+
+                {state === 'Sign Up' && (
                     <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-5'>
                         <img src={assets.user_icon} alt="" width={20} />
-                        <input onChange={(e) => setName(e.target.value)} value={name} className='outline-none text-sm' type="text" placeholder='Full Name' required />
+                        <input onChange={(e) => setName(e.target.value)} value={name} className='outline-none text-sm w-full' type="text" placeholder='Full Name' required />
                     </div>
                 )}
 
                 <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-4'>
                     <img src={assets.email_icon} alt="" />
-                    <input onChange={(e) => setEmail(e.target.value)} value={email} className='outline-none text-sm' type="email" placeholder='Email id' required />
+                    <input onChange={(e) => setEmail(e.target.value)} value={email} className='outline-none text-sm w-full' type="email" placeholder='Email id' required />
                 </div>
 
-                <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-4'>
-                    <img src={assets.lock_icon} alt="" />
-                    <input onChange={(e) => setPassword(e.target.value)} value={password} className='outline-none text-sm' type="password" placeholder='Password' required />
-                </div>
+                {state !== 'Forgot Password' && (
+                    <div className='border px-6 py-2 flex items-center gap-2 rounded-full mt-4'>
+                        <img src={assets.lock_icon} alt="" />
+                        <input onChange={(e) => setPassword(e.target.value)} value={password} className='outline-none text-sm w-full' type="password" placeholder='Password' required />
+                    </div>
+                )}
 
-                <p className='text-sm text-blue-600 my-4 cursor-pointer'>Forgot password?</p>
+                {state === 'Login' && (
+                    <p onClick={() => { setState('Forgot Password'); setFormError(''); setFormSuccess(''); }} className='text-sm text-blue-600 my-4 cursor-pointer hover:underline'>Forgot password?</p>
+                )}
 
                 <button
                     type='submit'
                     disabled={isSubmitting}
-                    className='bg-blue-600 w-full text-white py-2 rounded-full disabled:opacity-60 disabled:cursor-not-allowed'
+                    className='bg-blue-600 w-full text-white py-2 rounded-full mt-4 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700 transition-all'
                 >
-                    {isSubmitting ? 'please wait...' : state === 'Login' ? 'login' : 'create account'}
+                    {isSubmitting ? 'please wait...' : state === 'Login' ? 'login' : state === 'Sign Up' ? 'create account' : 'send reset link'}
                 </button>
 
-                <div className='mt-4'>
-                    <div className='relative flex items-center justify-center my-4'>
-                        <div className='border-t border-gray-300 grow'></div>
-                        <span className='px-4 text-sm text-gray-500'>or</span>
-                        <div className='border-t border-gray-300 grow'></div>
-                    </div>
+                {state !== 'Forgot Password' && (
+                    <div className='mt-4'>
+                        <div className='relative flex items-center justify-center my-4'>
+                            <div className='border-t border-gray-300 grow'></div>
+                            <span className='px-4 text-sm text-gray-500'>or</span>
+                            <div className='border-t border-gray-300 grow'></div>
+                        </div>
 
-                    <button
-                        type='button'
-                        onClick={handleGoogleLogin}
-                        className='w-full border border-gray-300 rounded-full py-2 px-4 flex items-center justify-center gap-3 hover:bg-gray-50 transition'
-                    >
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19.8055 10.2292C19.8055 9.55138 19.7508 8.86667 19.6344 8.19583H10.2002V12.0492H15.6014C15.3773 13.2911 14.6571 14.3898 13.6025 15.0875V17.5866H16.8251C18.7192 15.8449 19.8055 13.2728 19.8055 10.2292Z" fill="#4285F4" />
-                            <path d="M10.2002 20.0006C12.9527 20.0006 15.2736 19.1048 16.8251 17.5865L13.6025 15.0875C12.7026 15.6979 11.5518 16.0433 10.2002 16.0433C7.5464 16.0433 5.28716 14.2834 4.48723 11.9168H1.16406V14.4921C2.75182 17.6593 6.3092 20.0006 10.2002 20.0006Z" fill="#34A853" />
-                            <path d="M4.48723 11.9168C4.03158 10.6749 4.03158 9.32677 4.48723 8.08479V5.50952H1.16406C-0.354167 8.53701 -0.354167 12.4646 1.16406 15.4921L4.48723 11.9168Z" fill="#FBBC04" />
-                            <path d="M10.2002 3.95819C11.6244 3.93605 13.0011 4.47632 14.0368 5.45632L16.8978 2.60085C15.1826 0.990854 12.9324 0.118854 10.2002 0.143854C6.3092 0.143854 2.75182 2.48518 1.16406 5.50951L4.48723 8.08478C5.28716 5.71823 7.5464 3.95819 10.2002 3.95819Z" fill="#EA4335" />
-                        </svg>
-                        <span className='text-sm font-medium text-gray-700'>Continue with Google</span>
-                    </button>
-                </div>
+                        <button
+                            type='button'
+                            onClick={handleGoogleLogin}
+                            className='w-full border border-gray-300 rounded-full py-2 px-4 flex items-center justify-center gap-3 hover:bg-gray-50 transition'
+                        >
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.8055 10.2292C19.8055 9.55138 19.7508 8.86667 19.6344 8.19583H10.2002V12.0492H15.6014C15.3773 13.2911 14.6571 14.3898 13.6025 15.0875V17.5866H16.8251C18.7192 15.8449 19.8055 13.2728 19.8055 10.2292Z" fill="#4285F4" />
+                                <path d="M10.2002 20.0006C12.9527 20.0006 15.2736 19.1048 16.8251 17.5865L13.6025 15.0875C12.7026 15.6979 11.5518 16.0433 10.2002 16.0433C7.5464 16.0433 5.28716 14.2834 4.48723 11.9168H1.16406V14.4921C2.75182 17.6593 6.3092 20.0006 10.2002 20.0006Z" fill="#34A853" />
+                                <path d="M4.48723 11.9168C4.03158 10.6749 4.03158 9.32677 4.48723 8.08479V5.50952H1.16406C-0.354167 8.53701 -0.354167 12.4646 1.16406 15.4921L4.48723 11.9168Z" fill="#FBBC04" />
+                                <path d="M10.2002 3.95819C11.6244 3.93605 13.0011 4.47632 14.0368 5.45632L16.8978 2.60085C15.1826 0.990854 12.9324 0.118854 10.2002 0.143854C6.3092 0.143854 2.75182 2.48518 1.16406 5.50951L4.48723 8.08478C5.28716 5.71823 7.5464 3.95819 10.2002 3.95819Z" fill="#EA4335" />
+                            </svg>
+                            <span className='text-sm font-medium text-gray-700'>Continue with Google</span>
+                        </button>
+                    </div>
+                )}
 
                 {state === 'Login' ? (
-                    <p className='mt-5 text-center'>Don't have an account? <span className='text-blue-600 cursor-pointer' onClick={() => setState('Sign Up')}>Sign up</span></p>
+                    <p className='mt-5 text-center text-sm'>Don't have an account? <span className='text-blue-600 cursor-pointer hover:underline' onClick={() => { setState('Sign Up'); setFormError(''); setFormSuccess(''); }}>Sign up</span></p>
+                ) : state === 'Sign Up' ? (
+                    <p className='mt-5 text-center text-sm'>Already have an account? <span className='text-blue-600 cursor-pointer hover:underline' onClick={() => { setState('Login'); setFormError(''); setFormSuccess(''); }}>Login</span></p>
                 ) : (
-                    <p className='mt-5 text-center'>Already have an account? <span className='text-blue-600 cursor-pointer' onClick={() => setState('Login')}>Login</span></p>
+                    <p className='mt-5 text-center text-sm'>Remembered your password? <span className='text-blue-600 cursor-pointer hover:underline' onClick={() => { setState('Login'); setFormError(''); setFormSuccess(''); }}>Back to Login</span></p>
                 )}
 
                 <img onClick={() => setShowLogin(false)} src={assets.cross_icon} className='absolute top-5 right-5 cursor-pointer' alt="" />
